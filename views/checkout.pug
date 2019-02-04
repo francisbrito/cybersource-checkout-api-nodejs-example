@@ -1,0 +1,118 @@
+doctype html
+html
+    head
+        title CyberSource Checkout API &ndash; Node.js Example
+        meta(name='viewport' content='width=device-width, initial-scale=1')
+        link(rel='stylesheet' href='https://cdnjs.cloudflare.com/ajax/libs/bulma/0.7.2/css/bulma.min.css')
+        script(src=`https://h.online-metrix.net/fp/check.js?org_id=${orgId}&session_id=${deviceFingerprintId}`)
+        script(src='https://code.jquery.com/jquery.min.js')
+    body
+        div.section
+            div.container
+                h1.title Checkout Form
+                form.is-checkout-form(method='post' action='https://testsecureacceptance.cybersource.com/silent/pay')
+                    input(type='hidden' name='access_key' value=accessKey)
+                    input(type='hidden' name='card_type' value='001')
+                    input(type='hidden' name='card_expiry_date')
+                    input(type='hidden' name='customer_ip_address' value=customerIpAddress)
+                    input(type='hidden' name='device_fingerprint_id' value=deviceFingerprintId)
+                    input(type='hidden' name='device_fingerprint_raw' value='true')
+                    input(type='hidden' name='locale' value='en-US')
+                    input(type='hidden' name='payment_method' value='card')
+                    input(type='hidden' name='profile_id' value=profileId)
+                    input(type='hidden' name='signature')
+                    input(type='hidden' name='signed_date_time')
+                    input(type='hidden' name='signed_field_names' value=signedFieldNames)
+                    input(type='hidden' name='transaction_type' value='authorization,create_payment_token')
+                    input(type='hidden' name='transaction_uuid' value=deviceFingerprintId)
+                    input(type='hidden' name='unsigned_field_names' value=unsignedFieldNames)
+                    input(type='hidden' name='reference_number' value=referenceNumber)
+                    div.columns
+                        div.column
+                            div.field
+                                label.label(for='amount') Amount
+                                div.control
+                                    input#amount.input(name='amount' type='tel' placeholder='e.g: 100')
+                        div.column.is-one-fifth
+                            div.field
+                                label.label(for='currency') Currency
+                                div.control
+                                    input#currency.input(name='currency' type='text' placeholder='e.g: USD')
+                    div.field
+                        label.label(for='card-number') Card number
+                        div.control
+                            input#card-number.input(name='card_number' type='tel' placeholder='e.g: 4111 1111 1111 1111')
+                    div.field
+                        label.label(for='cardholder-name') Cardholder name
+                        div.control
+                            input#cardholder-name.input(type='text' placeholder='e.g: Elena Tonra')
+                    div.columns
+                        div.column.is-one-third
+                            div.field
+                                label.label(for='card-expiry-month') Card expiry month
+                                div.control
+                                    input#card-expiry-month.input.is-card-expiry-date-part(type='tel' placeholder='e.g: 12')
+                        div.column.is-one-third
+                            div.field
+                                label.label(for='card-expiry-year') Card expiry year
+                                div.control
+                                    input#card-expiry-year.input.is-card-expiry-date-part(type='tel' placeholder='e.g: 2020')
+                        div.column.is-one-third
+                            div.field
+                                label.label(for='card-cvn') Card CVN
+                                div.control
+                                    input#card-cvn.input(name='card_cvn' type='tel' placeholder='e.g: 123')
+                    div.columns
+                        div.column.is-one-quarter.is-fullwidth-mobile
+                            button.is-set-default-button.button.is-fullwidth Set defaults
+                        div.column.is-one-quarter.is-fullwidth-mobile
+                            button.button.is-primary.is-fullwidth(type='submit') Pay
+    script.
+      const $ = window.jQuery;
+      const $setDefaultButton = $('.is-set-default-button');
+      const defaults = [
+        { selector: '#amount', value: '0' },
+        { selector: '#currency', value: 'DOP' },
+        { selector: '#card-number', value: '4111111111111111' },
+        { selector: '#cardholder-name', value: 'Elena Tonra' },
+        { selector: '#card-expiry-month', value: '12' },
+        { selector: '#card-expiry-year', value: '2020' },
+        { selector: '#card-cvn', value: '123' }
+      ];
+      const onClick = function(e) {
+        e.preventDefault();
+
+        defaults.forEach(function(d) {
+          $(d.selector).val(d.value);
+        });
+      };
+
+      $setDefaultButton.on('click', onClick);
+
+      const $checkoutForm = $('.is-checkout-form');
+
+      $checkoutForm.on('submit', function(e) {
+        e.preventDefault();
+
+        const expiryMonth = $('#card-expiry-month').val();
+        const expiryYear = $('#card-expiry-year').val();
+        const expiryDate = `${expiryMonth}-${expiryYear}`;
+
+        debugger;
+
+        console.log(expiryDate);
+
+        $('[name=card_expiry_date]').val(expiryDate);
+
+        console.log($checkoutForm.serialize());
+
+        $.post('/', $checkoutForm.serialize())
+          .then(function(r) {
+            Object.keys(r).forEach(function(k) {
+              $(`input[name=${k}]`).val(r[ k ]);
+            });
+
+            $checkoutForm.off('submit');
+            $checkoutForm.submit();
+          })
+      });
