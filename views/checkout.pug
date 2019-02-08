@@ -98,13 +98,7 @@ html
         const expiryYear = $('#card-expiry-year').val();
         const expiryDate = `${expiryMonth}-${expiryYear}`;
 
-        debugger;
-
-        console.log(expiryDate);
-
         $('[name=card_expiry_date]').val(expiryDate);
-
-        console.log($checkoutForm.serialize());
 
         $.post('/', $checkoutForm.serialize())
           .then(function(r) {

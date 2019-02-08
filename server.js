@@ -4,7 +4,7 @@ const express = require("express");
 const uuid = require("uuid");
 const bodyParser = require("body-parser");
 const cors = require("cors");
-const { omit, pick } = require("ramda");
+const { pick } = require("ramda");
 
 const config = require("./config");
 
@@ -37,11 +37,11 @@ const SIGNED_FIELD_NAMES = [
 
 app.get("/", (req, res) => {
   const locals = {
-    accessKey: config.cybersourceCheckoutApi.ACCESS_KEY,
+    accessKey: config.cybersource.ACCESS_KEY,
     customerIpAddress: req.ip,
     deviceFingerprintId: uuid.v4(),
-    orgId: config.cybersourceCheckoutApi.ORG_ID,
-    profileId: config.cybersourceCheckoutApi.PROFILE_ID,
+    orgId: config.cybersource.ORG_ID,
+    profileId: config.cybersource.PROFILE_ID,
     referenceNumber: uuid.v4(),
     signedFieldNames: SIGNED_FIELD_NAMES.join(","),
     unsignedFieldNames: UNSIGNED_FIELD_NAMES.join(",")
@@ -63,7 +63,7 @@ app.post("/", cors({ origin: config.CORS_ALLOWED_HOSTS }), (req, res) => {
   res.json({ ...allFieldsToSign, signature });
 });
 
-app.post('/transaction-processed', (req, res) => {
+app.post(config.cybersource.CUSTOMER_RESPONSE_ENDPOINT, (req, res) => {
   res.json(req.body);
 });
 
@@ -78,7 +78,7 @@ function convertToSignatureDate(d) {
 }
 
 function sign(fields) {
-  const hash = crypto.createHmac("sha256", config.cybersourceCheckoutApi.SECRET_KEY);
+  const hash = crypto.createHmac("sha256", config.cybersource.SECRET_KEY);
   const encodedFields = Object.keys(fields).sort().map(k => `${k}=${fields[ k ]}`).join(",");
 
   return hash.update(encodedFields).digest("base64");
