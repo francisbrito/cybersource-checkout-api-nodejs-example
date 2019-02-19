@@ -100,7 +100,12 @@ html
 
         $('[name=card_expiry_date]').val(expiryDate);
 
-        $.post('/', $checkoutForm.serialize())
+        const fields = $checkoutForm.serializeArray();
+        const fieldsExceptCardNumber = fields.filter(function(o) {
+          return o.name !== 'card_number';
+        });
+
+        $.post('/', fieldsExceptCardNumber)
           .then(function(r) {
             Object.keys(r).forEach(function(k) {
               $(`input[name=${k}]`).val(r[ k ]);
@@ -108,5 +113,5 @@ html
 
             $checkoutForm.off('submit');
             $checkoutForm.submit();
-          })
+          });
       });
