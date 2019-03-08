@@ -18,6 +18,12 @@ const UNSIGNED_FIELD_NAMES = [ "card_number" ];
 const SIGNED_FIELD_NAMES = [
   "access_key",
   "amount",
+  "bill_to_address_city",
+  "bill_to_address_country",
+  "bill_to_address_line1",
+  "bill_to_email",
+  "bill_to_forename",
+  "bill_to_surname",
   "card_expiry_date",
   "card_type",
   "currency",
